@@ -1,8 +1,11 @@
-Release Notes for JdbcDb2 2.0
+Release Notes for JdbcDb2 2.1
 ==============================
 
-2.0.47
-First release of JdbcDb2 on GitHub.
+2.1.0
+Release for JAVA 10
 
 2.0.52
 .gitattributes added.
+
+2.0.47
+First release of JdbcDb2 on GitHub.

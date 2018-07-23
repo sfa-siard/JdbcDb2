@@ -128,10 +128,11 @@ public class Db2ResultSetTester
     catch(SQLException se) { fail(EU.getExceptionMessage(se)); }
   } /* setUpClass */
   
+  private Connection _conn = null;
+  
   private Connection closeResultSet()
     throws SQLException
   {
-    Connection conn = null;
     ResultSet rs = getResultSet();
     if (rs != null)
     {
@@ -141,22 +142,19 @@ public class Db2ResultSetTester
         rs.close();
         setResultSet(null);
         if (!stmt.isClosed())
-        {
-          conn = stmt.getConnection();
           stmt.close();
-          conn.commit();
-        }
       }
     }
-    return conn;
+    if (!_conn.isClosed())
+    	  _conn.commit();
+    return _conn;
   } /* closeResultSet */
   
-  private void openResultSet(Connection conn, String sQuery)
+  private void openResultSet(String sQuery, int iType, int iConcurrency)
     throws SQLException
   {
     closeResultSet();
-    /* big irritation: If you want to select LOBs, it MUST be FORWARD_ONLY! */
-    Statement stmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
+    Statement stmt = _conn.createStatement(iType, iConcurrency);
     ResultSet rs = stmt.executeQuery(sQuery);
     setResultSet(rs);
     rs.next();
@@ -171,14 +169,13 @@ public class Db2ResultSetTester
       dsDb2.setUrl(_sDB_URL);
       dsDb2.setUser(_sDB_USER);
       dsDb2.setPassword(_sDB_PASSWORD);
-      Connection conn = dsDb2.getConnection();
-      conn.setAutoCommit(false);
-      openResultSet(conn,_sSqlQuerySimple);
+      _conn = dsDb2.getConnection();
+      _conn.setAutoCommit(false);
+      // openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
     }
     catch(SQLException se) { fail(EU.getExceptionMessage(se)); }
   } /* setUp */
 
-  /*** (probably superfluous! TODO: delete after next successful build!)
   @After
   @Override
   public void tearDown()
@@ -186,13 +183,10 @@ public class Db2ResultSetTester
     try
     {
       Connection conn = closeResultSet();
-      if (conn != null)
+      if ((conn != null) && (!conn.isClosed()))
       {
-        if (!conn.isClosed())
-        {
-          conn.commit();
-          conn.close();
-        }
+        conn.commit();
+        conn.close();
       }
     }
     catch(SQLException se) { fail(EU.getExceptionMessage(se)); }
@@ -249,7 +243,13 @@ public class Db2ResultSetTester
   @Test
   public void testClass()
   {
-    assertEquals("Wrong result set class!", Db2ResultSet.class, getResultSet().getClass());
+  	try
+    {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
+      assertEquals("Wrong result set class!", Db2ResultSet.class, getResultSet().getClass());
+    }
+    catch(SQLFeatureNotSupportedException sfnse) { printExceptionMessage(sfnse); }
+    catch(SQLException se) { System.out.println(EU.getExceptionMessage(se)); }
   } /* testClass */
 
   @Override
@@ -257,7 +257,11 @@ public class Db2ResultSetTester
   public void testIsBeforeFirst()
   {
     enter();
-    try { getResultSet().isBeforeFirst(); }
+    try 
+    {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_SCROLL_SENSITIVE,ResultSet.CONCUR_READ_ONLY);
+    	  getResultSet().isBeforeFirst();
+    	}
     catch(SQLFeatureNotSupportedException sfnse) { printExceptionMessage(sfnse); }
     catch(SQLException se) { System.out.println(EU.getExceptionMessage(se)); }
   } /* testIsBeforeFirst */
@@ -267,7 +271,11 @@ public class Db2ResultSetTester
   public void testIsAfterLast()
   {
     enter();
-    try { getResultSet().isAfterLast(); }
+    try
+    {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_SCROLL_SENSITIVE,ResultSet.CONCUR_READ_ONLY);
+    	  getResultSet().isAfterLast();
+    	}
     catch(SQLFeatureNotSupportedException sfnse) { printExceptionMessage(sfnse); }
     catch(SQLException se) { System.out.println(EU.getExceptionMessage(se)); }
   } /* testIsAfterLast */
@@ -277,7 +285,11 @@ public class Db2ResultSetTester
   public void testIsFirst()
   {
     enter();
-    try { getResultSet().isFirst(); }
+    try
+    {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_SCROLL_SENSITIVE,ResultSet.CONCUR_READ_ONLY);
+    	  getResultSet().isFirst();
+    	}
     catch(SQLFeatureNotSupportedException sfnse) { printExceptionMessage(sfnse); }
     catch(SQLException se) { System.out.println(EU.getExceptionMessage(se)); }
   } /* testIsFirst */
@@ -287,7 +299,11 @@ public class Db2ResultSetTester
   public void testIsLast()
   {
     enter();
-    try { getResultSet().isLast(); }
+    try 
+    {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_SCROLL_SENSITIVE,ResultSet.CONCUR_READ_ONLY);
+      	getResultSet().isLast();
+    	}
     catch(SQLFeatureNotSupportedException sfnse) { printExceptionMessage(sfnse); }
     catch(SQLException se) { System.out.println(EU.getExceptionMessage(se)); }
   } /* testIsLast */
@@ -297,7 +313,11 @@ public class Db2ResultSetTester
   public void testBeforeFirst()
   {
     enter();
-    try { getResultSet().beforeFirst(); }
+    try 
+    { 
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_SCROLL_SENSITIVE,ResultSet.CONCUR_READ_ONLY);
+    	  getResultSet().beforeFirst(); 
+    	}
     catch(SQLFeatureNotSupportedException sfnse) { printExceptionMessage(sfnse); }
     catch(SQLException se) { System.out.println(EU.getExceptionMessage(se)); }
   } /* testBeforeFirst */
@@ -307,7 +327,11 @@ public class Db2ResultSetTester
   public void testAfterLast()
   {
     enter();
-    try { getResultSet().afterLast(); }
+    try 
+    { 
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_SCROLL_SENSITIVE,ResultSet.CONCUR_READ_ONLY);
+    	  getResultSet().afterLast();
+    	}
     catch(SQLFeatureNotSupportedException sfnse) { printExceptionMessage(sfnse); }
     catch(SQLException se) { System.out.println(EU.getExceptionMessage(se)); }
   } /* testAfterLast */
@@ -317,7 +341,11 @@ public class Db2ResultSetTester
   public void testAbsolute()
   {
     enter();
-    try { getResultSet().absolute(1); }
+    try
+    {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_SCROLL_SENSITIVE,ResultSet.CONCUR_READ_ONLY);
+    	  getResultSet().absolute(1);
+    	}
     catch(SQLFeatureNotSupportedException sfnse) { printExceptionMessage(sfnse); }
     catch(SQLException se) { System.out.println(EU.getExceptionMessage(se)); }
   } /* testAbsolute */
@@ -327,7 +355,11 @@ public class Db2ResultSetTester
   public void testRelative()
   {
     enter();
-    try { getResultSet().relative(1); }
+    try 
+    {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_SCROLL_SENSITIVE,ResultSet.CONCUR_READ_ONLY);
+      getResultSet().relative(1);
+    	}
     catch(SQLFeatureNotSupportedException sfnse) { printExceptionMessage(sfnse); }
     catch(SQLException se) { System.out.println(EU.getExceptionMessage(se)); }
   } /* testRelative */
@@ -339,6 +371,7 @@ public class Db2ResultSetTester
     enter();
     try 
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_SCROLL_SENSITIVE,ResultSet.CONCUR_READ_ONLY);
       getResultSet().next();
       getResultSet().previous();
     }
@@ -348,10 +381,29 @@ public class Db2ResultSetTester
   
   @Override
   @Test
+  public void testNext()
+  {
+    enter();
+    try 
+    {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
+     	getResultSet().next();
+    }
+    catch(SQLFeatureNotSupportedException sfnse) { printExceptionMessage(sfnse); }
+    catch(SQLException se) { fail(EU.getExceptionMessage(se)); }
+  } /* testPrevious */
+  
+
+  @Override
+  @Test
   public void testFirst()
   {
     enter();
-    try { getResultSet().first(); }
+    try 
+    {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_SCROLL_SENSITIVE,ResultSet.CONCUR_READ_ONLY);
+    	  getResultSet().first(); 
+    }
     catch(SQLFeatureNotSupportedException sfnse) { printExceptionMessage(sfnse); }
     catch(SQLException se) { System.out.println(EU.getExceptionMessage(se)); }
   } /* testFirst */
@@ -361,16 +413,96 @@ public class Db2ResultSetTester
   public void testLast()
   {
     enter();
-    try { getResultSet().last(); }
+    try 
+    {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_SCROLL_SENSITIVE,ResultSet.CONCUR_READ_ONLY);
+    	  getResultSet().last();
+    	}
     catch(SQLFeatureNotSupportedException sfnse) { printExceptionMessage(sfnse); }
     catch(SQLException se) { System.out.println(EU.getExceptionMessage(se)); }
   } /* testLast */
   
+  @Override
+  @Test
+  public void testMoveToInsertRow() throws SQLException
+  {
+    enter();
+    try 
+    {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_UPDATABLE);
+    	  getResultSet().moveToInsertRow();
+    	}
+    catch(SQLFeatureNotSupportedException sfnse) { printExceptionMessage(sfnse); }
+    catch(SQLException se) { fail(EU.getExceptionMessage(se)); }
+  } /* testMoveToInsertRow */
+
+  @Override
+  @Test
+  public void testMoveToCurrentRow() throws SQLException
+  {
+    enter();
+    try
+    {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_UPDATABLE);
+    	  getResultSet().moveToCurrentRow();
+    	}
+    catch(SQLFeatureNotSupportedException sfnse) { printExceptionMessage(sfnse); }
+    catch(SQLException se) { fail(EU.getExceptionMessage(se)); }
+  } /* testMoveToCurrentRow */
+  
+  @Override
+  @Test
+  public void testGetFetchSize()
+  {
+    enter();
+    try 
+    {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
+      getResultSet().getFetchSize();
+    	}
+    catch(SQLFeatureNotSupportedException sfnse) { printExceptionMessage(sfnse); }
+    catch(SQLException se) { fail(EU.getExceptionMessage(se)); }
+  } /* testGetFetchSize */
+  
+  @Override
+  @Test
+  public void testSetFetchSize()
+  {
+    enter();
+    try 
+    { 
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
+      getResultSet().setFetchSize(20);
+    	}
+    catch(SQLFeatureNotSupportedException sfnse) { printExceptionMessage(sfnse); }
+    catch(SQLException se) { fail(EU.getExceptionMessage(se)); }
+  } /* testSetFetchSize */
+  
+
+  @Override
+  @Test
+  public void testGetFetchDirection()
+  {
+    enter();
+    try 
+    {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
+    	  getResultSet().getFetchDirection();
+    	}
+    catch(SQLFeatureNotSupportedException sfnse) { printExceptionMessage(sfnse); }
+    catch(SQLException se) { fail(EU.getExceptionMessage(se)); }
+  } /* testGetFetchDirection */
+
+  @Override
   @Test
   public void testSetFetchDirection()
   {
     enter();
-    try { getResultSet().setFetchDirection(ResultSet.FETCH_UNKNOWN); }
+    try 
+    {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
+    	  getResultSet().setFetchDirection(ResultSet.FETCH_REVERSE); 
+    	}
     catch(SQLFeatureNotSupportedException sfnse) { printExceptionMessage(sfnse); }
     catch(SQLException se) { System.out.println(EU.getExceptionMessage(se)); }
   } /* testSetFetchDirection */
@@ -381,6 +513,7 @@ public class Db2ResultSetTester
   {
     try
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
       TestColumnDefinition tcd = findColumnDefinition(
         TestSqlDatabase._listCdSimple,"CVARCHAR_255");
       String s = getResultSet().getString(tcd.getName());
@@ -395,6 +528,7 @@ public class Db2ResultSetTester
   {
     try
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
       TestColumnDefinition tcd = findColumnDefinition(
         TestSqlDatabase._listCdSimple,"CNVARCHAR_127");
       String s = getResultSet().getNString(tcd.getName());
@@ -409,6 +543,7 @@ public class Db2ResultSetTester
   {
     try
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
       TestColumnDefinition tcd = findColumnDefinition(
         TestSqlDatabase._listCdSimple,"CCLOB_2M");
       Clob clob = getResultSet().getClob(tcd.getName());
@@ -424,6 +559,7 @@ public class Db2ResultSetTester
   {
     try
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
       TestColumnDefinition tcd = findColumnDefinition(
         TestSqlDatabase._listCdSimple,"CNCLOB_1M");
       NClob nclob = getResultSet().getNClob(tcd.getName());
@@ -439,6 +575,7 @@ public class Db2ResultSetTester
   {
     try
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
       TestColumnDefinition tcd = findColumnDefinition(
         TestSqlDatabase._listCdSimple,"CXML");
       SQLXML sqlxml = getResultSet().getSQLXML(tcd.getName());
@@ -454,6 +591,7 @@ public class Db2ResultSetTester
   {
     try
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
       TestColumnDefinition tcd = findColumnDefinition(
         TestSqlDatabase._listCdSimple,"CVARBINARY_255");
       byte[] buf = getResultSet().getBytes(tcd.getName());
@@ -468,6 +606,7 @@ public class Db2ResultSetTester
   {
     try
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
       TestColumnDefinition tcd = findColumnDefinition(
         TestSqlDatabase._listCdSimple,"CBLOB");
       Blob blob = getResultSet().getBlob(tcd.getName());
@@ -483,6 +622,7 @@ public class Db2ResultSetTester
   {
     try
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
       TestColumnDefinition tcd = findColumnDefinition(
         TestSqlDatabase._listCdSimple,"CDECIMAL_15_5");
       BigDecimal bd = getResultSet().getBigDecimal(tcd.getName());
@@ -498,6 +638,7 @@ public class Db2ResultSetTester
   {
     try
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
       TestColumnDefinition tcd = findColumnDefinition(
         TestSqlDatabase._listCdSimple,"CDECIMAL_15_5");
       BigDecimal bd = getResultSet().getBigDecimal(tcd.getName(),3);
@@ -512,6 +653,7 @@ public class Db2ResultSetTester
   {
     try
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
       TestColumnDefinition tcd = findColumnDefinition(
         TestSqlDatabase._listCdSimple,"CBOOLEAN");
       byte by = getResultSet().getByte(tcd.getName());
@@ -526,6 +668,7 @@ public class Db2ResultSetTester
   {
     try
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
       TestColumnDefinition tcd = findColumnDefinition(
         TestSqlDatabase._listCdSimple,"CSMALLINT");
       short sh = getResultSet().getShort(tcd.getName());
@@ -540,6 +683,7 @@ public class Db2ResultSetTester
   {
     try
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
       TestColumnDefinition tcd = findColumnDefinition(
         TestSqlDatabase._listCdSimple,"CINTEGER");
       int i = getResultSet().getInt(tcd.getName());
@@ -554,6 +698,7 @@ public class Db2ResultSetTester
   {
     try
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
       TestColumnDefinition tcd = findColumnDefinition(
         TestSqlDatabase._listCdSimple,"CBIGINT");
       long l = getResultSet().getLong(tcd.getName());
@@ -568,6 +713,7 @@ public class Db2ResultSetTester
   {
     try
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
       TestColumnDefinition tcd = findColumnDefinition(
         TestSqlDatabase._listCdSimple,"CREAL");
       float f = getResultSet().getFloat(tcd.getName());
@@ -582,6 +728,7 @@ public class Db2ResultSetTester
   {
     try
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
       TestColumnDefinition tcd = findColumnDefinition(
         TestSqlDatabase._listCdSimple,"CDOUBLE");
       double d = getResultSet().getDouble(tcd.getName());
@@ -596,6 +743,7 @@ public class Db2ResultSetTester
   {
     try
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
       TestColumnDefinition tcd = findColumnDefinition(
         TestSqlDatabase._listCdSimple,"CBOOLEAN");
       boolean b = getResultSet().getBoolean(tcd.getName());
@@ -610,6 +758,7 @@ public class Db2ResultSetTester
   {
     try
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
       TestColumnDefinition tcd = findColumnDefinition(
         TestSqlDatabase._listCdSimple,"CDATE");
       Date date = getResultSet().getDate(tcd.getName());
@@ -624,6 +773,7 @@ public class Db2ResultSetTester
   {
     try
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
       TestColumnDefinition tcd = findColumnDefinition(
         TestSqlDatabase._listCdSimple,"CDATE");
       Calendar cal = new GregorianCalendar();
@@ -639,6 +789,7 @@ public class Db2ResultSetTester
   {
     try
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
       TestColumnDefinition tcd = findColumnDefinition(
         TestSqlDatabase._listCdSimple,"CTIME");
       Time time = getResultSet().getTime(tcd.getName());
@@ -653,6 +804,7 @@ public class Db2ResultSetTester
   {
     try
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
       TestColumnDefinition tcd = findColumnDefinition(
         TestSqlDatabase._listCdSimple,"CTIME");
       Calendar cal = new GregorianCalendar();
@@ -668,6 +820,7 @@ public class Db2ResultSetTester
   {
     try
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
       TestColumnDefinition tcd = findColumnDefinition(
         TestSqlDatabase._listCdSimple,"CTIMESTAMP");
       Timestamp ts = getResultSet().getTimestamp(tcd.getName());
@@ -682,6 +835,7 @@ public class Db2ResultSetTester
   {
     try
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
       TestColumnDefinition tcd = findColumnDefinition(
         TestSqlDatabase._listCdSimple,"CTIMESTAMP");
       Calendar cal = new GregorianCalendar();
@@ -697,6 +851,7 @@ public class Db2ResultSetTester
     enter();
     try 
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
       TestColumnDefinition tcd = findColumnDefinition(
         TestSqlDatabase._listCdSimple,"CINTERVAL_YEAR_2_MONTH");
       Duration duration = getBaseResultSet().getDuration(tcd.getName());
@@ -712,6 +867,7 @@ public class Db2ResultSetTester
   {
     try
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
       TestColumnDefinition tcd = findColumnDefinition(
         TestSqlDatabase._listCdSimple,"CVARCHAR_255");
       InputStream is = getResultSet().getAsciiStream(tcd.getName());
@@ -734,6 +890,7 @@ public class Db2ResultSetTester
   {
     try
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
       TestColumnDefinition tcd = findColumnDefinition(
         TestSqlDatabase._listCdSimple,"CNVARCHAR_127");
       Reader rdr = new InputStreamReader(getResultSet().getUnicodeStream(tcd.getName()),SU.sUTF8_CHARSET_NAME);
@@ -755,6 +912,7 @@ public class Db2ResultSetTester
   {
     try
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
       TestColumnDefinition tcd = findColumnDefinition(
         TestSqlDatabase._listCdSimple,"CVARCHAR_255");
       Reader rdr = getResultSet().getCharacterStream(tcd.getName());
@@ -776,6 +934,7 @@ public class Db2ResultSetTester
   {
     try
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
       TestColumnDefinition tcd = findColumnDefinition(
         TestSqlDatabase._listCdSimple,"CNVARCHAR_127");
       Reader rdr = getResultSet().getNCharacterStream(tcd.getName());
@@ -797,6 +956,7 @@ public class Db2ResultSetTester
   {
     try
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
       TestColumnDefinition tcd = findColumnDefinition(
         TestSqlDatabase._listCdSimple,"CVARBINARY_255");
       InputStream is = getResultSet().getBinaryStream(tcd.getName());
@@ -842,6 +1002,7 @@ public class Db2ResultSetTester
   {
     try
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
       TestColumnDefinition tcd = findColumnDefinition(
         TestSqlDatabase._listCdSimple,"CDATE");
       Object o = getResultSet().getObject(tcd.getName());
@@ -857,6 +1018,7 @@ public class Db2ResultSetTester
     enter();
     try
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
       TestColumnDefinition tcd = findColumnDefinition(
         TestSqlDatabase._listCdSimple,"CDATE");
       Date date = getResultSet().getObject(tcd.getName(),Date.class);
@@ -871,7 +1033,7 @@ public class Db2ResultSetTester
   {
     try
     {
-      openResultSet(getResultSet().getStatement().getConnection(),_sSqlQueryComplex);
+      openResultSet(_sSqlQueryComplex,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
       TestColumnDefinition tcd = findColumnDefinition(
         TestSqlDatabase._listCdComplex,"CDISTINCT");
       Map<String,Class<?>> map = new HashMap<String,Class<?>>();
@@ -888,7 +1050,7 @@ public class Db2ResultSetTester
   {
     try
     {
-      openResultSet(getResultSet().getStatement().getConnection(),_sSqlQuerySimple);
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
       for (int iColumn = 0; iColumn < TestSqlDatabase._listCdSimple.size(); iColumn++)
       {
         TestColumnDefinition tcd = TestSqlDatabase._listCdSimple.get(iColumn);
@@ -1111,7 +1273,7 @@ public class Db2ResultSetTester
   {
     try
     {
-      openResultSet(getResultSet().getStatement().getConnection(),_sNativeQuerySimple);
+      openResultSet(_sNativeQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
       for (int iColumn = 0; iColumn < TestDb2Database._listCdSimple.size(); iColumn++)
       {
         TestColumnDefinition tcd = TestDb2Database._listCdSimple.get(iColumn);
@@ -1384,7 +1546,7 @@ public class Db2ResultSetTester
   {
     try
     {
-      openResultSet(getResultSet().getStatement().getConnection(),_sSqlQueryComplex);
+      openResultSet(_sSqlQueryComplex,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
       for (int iColumn = 0; iColumn < TestSqlDatabase._listCdComplex.size(); iColumn++)
       {
         TestColumnDefinition tcd = TestSqlDatabase._listCdComplex.get(iColumn);
@@ -1438,7 +1600,7 @@ public class Db2ResultSetTester
   {
     try
     {
-      openResultSet(getResultSet().getStatement().getConnection(),_sNativeQueryComplex);
+      openResultSet(_sNativeQueryComplex,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
       for (int iColumn = 0; iColumn < TestDb2Database._listCdComplex.size(); iColumn++)
       {
         TestColumnDefinition tcd = TestDb2Database._listCdComplex.get(iColumn);
@@ -1493,6 +1655,7 @@ public class Db2ResultSetTester
   {
     try
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_UPDATABLE);
       TestColumnDefinition tcd = findColumnDefinition(
         _listCdSimple,"CVARCHAR_255");
       getResultSet().updateString(tcd.getName(),(String)tcd.getValue());
@@ -1506,6 +1669,7 @@ public class Db2ResultSetTester
   {
     try
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_UPDATABLE);
       TestColumnDefinition tcd = findColumnDefinition(
         _listCdSimple,"CNVARCHAR_127");
       getResultSet().updateNString(tcd.getName(),(String)tcd.getValue());
@@ -1519,6 +1683,7 @@ public class Db2ResultSetTester
   {
     try
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_UPDATABLE);
       TestColumnDefinition tcd = findColumnDefinition(
         _listCdSimple,"CCLOB_2M");
       Clob clob = getResultSet().getStatement().getConnection().createClob();
@@ -1534,6 +1699,7 @@ public class Db2ResultSetTester
   {
     try
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_UPDATABLE);
       TestColumnDefinition tcd = findColumnDefinition(
         _listCdSimple,"CCLOB_2M");
       Reader rdr = new StringReader((String)tcd.getValue());
@@ -1548,6 +1714,7 @@ public class Db2ResultSetTester
   {
     try
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_UPDATABLE);
       TestColumnDefinition tcd = findColumnDefinition(
         _listCdSimple,"CCLOB_2M");
       Reader rdr = new StringReader((String)tcd.getValue());
@@ -1562,6 +1729,7 @@ public class Db2ResultSetTester
   {
     try
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_UPDATABLE);
       TestColumnDefinition tcd = findColumnDefinition(
         _listCdSimple,"CNCLOB_1M");
       NClob nclob = getResultSet().getStatement().getConnection().createNClob();
@@ -1577,6 +1745,7 @@ public class Db2ResultSetTester
   {
     try
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_UPDATABLE);
       TestColumnDefinition tcd = findColumnDefinition(
         _listCdSimple,"CNCLOB_1M");
       Reader rdr = new StringReader((String)tcd.getValue());
@@ -1591,6 +1760,7 @@ public class Db2ResultSetTester
   {
     try
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_UPDATABLE);
       TestColumnDefinition tcd = findColumnDefinition(
         _listCdSimple,"CNCLOB_1M");
       Reader rdr = new StringReader((String)tcd.getValue());
@@ -1606,6 +1776,7 @@ public class Db2ResultSetTester
   {
     try
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_UPDATABLE);
       TestColumnDefinition tcd = findColumnDefinition(
         _listCdSimple,"CXML");
       SQLXML sqlxml = getResultSet().getStatement().getConnection().createSQLXML();
@@ -1621,6 +1792,7 @@ public class Db2ResultSetTester
   {
     try
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_UPDATABLE);
       TestColumnDefinition tcd = findColumnDefinition(
         _listCdSimple,"CVARBINARY_255");
       getResultSet().updateBytes(tcd.getName(),(byte[])tcd.getValue());
@@ -1634,6 +1806,7 @@ public class Db2ResultSetTester
   {
     try
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_UPDATABLE);
       TestColumnDefinition tcd = findColumnDefinition(
         _listCdSimple,"CBLOB");
       Blob blob = getResultSet().getStatement().getConnection().createBlob();
@@ -1649,6 +1822,7 @@ public class Db2ResultSetTester
   {
     try
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_UPDATABLE);
       TestColumnDefinition tcd = findColumnDefinition(
         _listCdSimple,"CBLOB");
       InputStream is = new ByteArrayInputStream((byte[])tcd.getValue());
@@ -1663,6 +1837,7 @@ public class Db2ResultSetTester
   {
     try
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_UPDATABLE);
       TestColumnDefinition tcd = findColumnDefinition(
         _listCdSimple,"CBLOB");
       InputStream is = new ByteArrayInputStream((byte[])tcd.getValue());
@@ -1677,6 +1852,7 @@ public class Db2ResultSetTester
   {
     try
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_UPDATABLE);
       TestColumnDefinition tcd = findColumnDefinition(
         _listCdSimple,"CDECIMAL_15_5");
       getResultSet().updateBigDecimal(tcd.getName(),(BigDecimal)tcd.getValue());
@@ -1690,6 +1866,7 @@ public class Db2ResultSetTester
   {
     try
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_UPDATABLE);
       TestColumnDefinition tcd = findColumnDefinition(
         _listCdSimple,"CBOOLEAN");
       getResultSet().updateByte(tcd.getName(),((Boolean)tcd.getValue()).booleanValue()?(byte)1:(byte)0);
@@ -1703,6 +1880,7 @@ public class Db2ResultSetTester
   {
     try
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_UPDATABLE);
       TestColumnDefinition tcd = findColumnDefinition(
         _listCdSimple,"CSMALLINT");
       getResultSet().updateShort(tcd.getName(),((Short)tcd.getValue()).shortValue());
@@ -1716,6 +1894,7 @@ public class Db2ResultSetTester
   {
     try
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_UPDATABLE);
       TestColumnDefinition tcd = findColumnDefinition(
         _listCdSimple,"CINTEGER");
       getResultSet().updateInt(tcd.getName(),((Integer)tcd.getValue()).intValue());
@@ -1729,6 +1908,7 @@ public class Db2ResultSetTester
   {
     try
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_UPDATABLE);
       TestColumnDefinition tcd = findColumnDefinition(_listCdSimple,"CBIGINT");
       getResultSet().updateLong(tcd.getName(),((Long)tcd.getValue()).longValue());
     }
@@ -1741,6 +1921,7 @@ public class Db2ResultSetTester
   {
     try
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_UPDATABLE);
       TestColumnDefinition tcd = findColumnDefinition(
         _listCdSimple,"CREAL");
       getResultSet().updateFloat(tcd.getName(),((Float)tcd.getValue()).floatValue());
@@ -1754,6 +1935,7 @@ public class Db2ResultSetTester
   {
     try
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_UPDATABLE);
       TestColumnDefinition tcd = findColumnDefinition(
         _listCdSimple,"CDOUBLE");
       getResultSet().updateDouble(tcd.getName(),((Double)tcd.getValue()).doubleValue());
@@ -1767,6 +1949,7 @@ public class Db2ResultSetTester
   {
     try
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_UPDATABLE);
       TestColumnDefinition tcd = findColumnDefinition(
         _listCdSimple,"CBOOLEAN");
       getResultSet().updateBoolean(tcd.getName(),((Boolean)tcd.getValue()).booleanValue());
@@ -1780,6 +1963,7 @@ public class Db2ResultSetTester
   {
     try
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_UPDATABLE);
       TestColumnDefinition tcd = findColumnDefinition(
         _listCdSimple,"CDATE");
       getResultSet().updateDate(tcd.getName(),(Date)tcd.getValue());
@@ -1793,6 +1977,7 @@ public class Db2ResultSetTester
   {
     try
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_UPDATABLE);
       TestColumnDefinition tcd = findColumnDefinition(
         _listCdSimple,"CTIME");
       getResultSet().updateTime(tcd.getName(),(Time)tcd.getValue());
@@ -1806,6 +1991,7 @@ public class Db2ResultSetTester
   {
     try
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_UPDATABLE);
       TestColumnDefinition tcd = findColumnDefinition(
         _listCdSimple,"CTIMESTAMP");
       getResultSet().updateTimestamp(tcd.getName(),(Timestamp)tcd.getValue());
@@ -1818,6 +2004,7 @@ public class Db2ResultSetTester
   {
     try 
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_UPDATABLE);
       TestColumnDefinition tcd = findColumnDefinition(
         _listCdSimple,"CINTERVAL_DAY_2_SECONDS_6");
       getBaseResultSet().updateDuration(tcd.getName(), ((Interval)tcd.getValue()).toDuration());
@@ -1832,6 +2019,7 @@ public class Db2ResultSetTester
   {
     try
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_UPDATABLE);
       TestColumnDefinition tcd = findColumnDefinition(
         _listCdSimple,"CVARCHAR_255");
       InputStream is = new ByteArrayInputStream(((String)tcd.getValue()).getBytes());
@@ -1846,6 +2034,7 @@ public class Db2ResultSetTester
   {
     try
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_UPDATABLE);
       TestColumnDefinition tcd = findColumnDefinition(
         _listCdSimple,"CVARCHAR_255");
       InputStream is = new ByteArrayInputStream(((String)tcd.getValue()).getBytes());
@@ -1860,6 +2049,7 @@ public class Db2ResultSetTester
   {
     try
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_UPDATABLE);
       TestColumnDefinition tcd = findColumnDefinition(
         _listCdSimple,"CVARCHAR_255");
       InputStream is = new ByteArrayInputStream(((String)tcd.getValue()).getBytes());
@@ -1874,6 +2064,7 @@ public class Db2ResultSetTester
   {
     try
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_UPDATABLE);
       TestColumnDefinition tcd = findColumnDefinition(
         _listCdSimple,"CVARCHAR_255");
       Reader rdr = new StringReader((String)tcd.getValue());
@@ -1888,6 +2079,7 @@ public class Db2ResultSetTester
   {
     try
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_UPDATABLE);
       TestColumnDefinition tcd = findColumnDefinition(
         _listCdSimple,"CVARCHAR_255");
       Reader rdr = new StringReader((String)tcd.getValue());
@@ -1902,6 +2094,7 @@ public class Db2ResultSetTester
   {
     try
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_UPDATABLE);
       TestColumnDefinition tcd = findColumnDefinition(
         _listCdSimple,"CVARCHAR_255");
       Reader rdr = new StringReader((String)tcd.getValue());
@@ -1916,6 +2109,7 @@ public class Db2ResultSetTester
   {
     try
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_UPDATABLE);
       TestColumnDefinition tcd = findColumnDefinition(
         _listCdSimple,"CNVARCHAR_127");
       Reader rdr = new StringReader((String)tcd.getValue());
@@ -1930,6 +2124,7 @@ public class Db2ResultSetTester
   {
     try
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_UPDATABLE);
       TestColumnDefinition tcd = findColumnDefinition(
         _listCdSimple,"CNVARCHAR_127");
       Reader rdr = new StringReader((String)tcd.getValue());
@@ -1944,6 +2139,7 @@ public class Db2ResultSetTester
   {
     try
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_UPDATABLE);
       TestColumnDefinition tcd = findColumnDefinition(
         _listCdSimple,"CNVARCHAR_127");
       Reader rdr = new StringReader((String)tcd.getValue());
@@ -1958,6 +2154,7 @@ public class Db2ResultSetTester
   {
     try
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_UPDATABLE);
       TestColumnDefinition tcd = findColumnDefinition(
         _listCdSimple,"CVARBINARY_255");
       InputStream is = new ByteArrayInputStream((byte[])tcd.getValue());
@@ -1972,6 +2169,7 @@ public class Db2ResultSetTester
   {
     try
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_UPDATABLE);
       TestColumnDefinition tcd = findColumnDefinition(
         _listCdSimple,"CVARBINARY_255");
       InputStream is = new ByteArrayInputStream((byte[])tcd.getValue());
@@ -1986,6 +2184,7 @@ public class Db2ResultSetTester
   {
     try
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_UPDATABLE);
       TestColumnDefinition tcd = findColumnDefinition(
         _listCdSimple,"CVARBINARY_255");
       InputStream is = new ByteArrayInputStream((byte[])tcd.getValue());
@@ -2020,6 +2219,7 @@ public class Db2ResultSetTester
   {
     try
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_UPDATABLE);
       TestColumnDefinition tcd = findColumnDefinition(
         _listCdSimple,"CDATE");
       getResultSet().updateObject(tcd.getName(),tcd.getValue());
@@ -2033,6 +2233,7 @@ public class Db2ResultSetTester
   {
     try
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_UPDATABLE);
       TestColumnDefinition tcd = findColumnDefinition(
         _listCdSimple,"CDECIMAL_15_5");
       getResultSet().updateObject(tcd.getName(),tcd.getValue(),3);
@@ -2045,7 +2246,11 @@ public class Db2ResultSetTester
   public void testRefreshRow() throws SQLException
   {
     enter();
-    try { getResultSet().refreshRow(); }
+    try
+    {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_SCROLL_SENSITIVE,ResultSet.CONCUR_UPDATABLE);
+    	  getResultSet().refreshRow();
+    	}
     catch(SQLException se) { System.out.println(EU.getExceptionMessage(se)); }
   } /* refreshRow */
 
@@ -2056,7 +2261,7 @@ public class Db2ResultSetTester
     try 
     {
       // cannot delete row in simple table because of foreign key
-      openResultSet(getResultSet().getStatement().getConnection(),_sSqlQueryComplex);
+      openResultSet(_sSqlQueryComplex,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_UPDATABLE);
       getResultSet().deleteRow();
       // restore the database
       tearDown();
@@ -2068,13 +2273,55 @@ public class Db2ResultSetTester
   
   @Override
   @Test
+  public void testRowInserted()
+  {
+    enter();
+    try 
+    {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_UPDATABLE);
+    	  getResultSet().rowInserted(); 
+    }
+    catch(SQLFeatureNotSupportedException sfnse) { System.out.println(EU.getExceptionMessage(sfnse)); }
+    catch(SQLException se) { fail(EU.getExceptionMessage(se)); }
+  } /* testRowInserted */
+  
+  @Override
+  @Test
+  public void testRowDeleted()
+  {
+    enter();
+    try
+    {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_UPDATABLE);
+      getResultSet().rowDeleted();
+    	}
+    catch(SQLFeatureNotSupportedException sfnse) { System.out.println(EU.getExceptionMessage(sfnse)); }
+    catch(SQLException se) { fail(EU.getExceptionMessage(se)); }
+  } /* testRowDeleted */
+
+  
+  @Override
+  @Test
+  public void testCancelRowUpdates() throws SQLException
+  {
+    enter();
+    try 
+    {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_UPDATABLE);
+    	getResultSet().cancelRowUpdates();
+    	}
+    catch(SQLFeatureNotSupportedException sfnse) { System.out.println(EU.getExceptionMessage(sfnse)); }
+  } /* testCancelRowUpdates */
+
+  @Override
+  @Test
   public void testUpdateRow() throws SQLException
   {
     try 
     { 
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_UPDATABLE);
       TestColumnDefinition tcd = findColumnDefinition(
         _listCdSimple,"CXML");
-      openResultSet(getResultSet().getStatement().getConnection(),_sSqlQuerySimple);
       SQLXML sqlxml = getResultSet().getStatement().getConnection().createSQLXML();
       sqlxml.setString("<a>Konrad Zuse</a>");
       getResultSet().updateSQLXML(tcd.getName(), sqlxml);
@@ -2090,10 +2337,26 @@ public class Db2ResultSetTester
 
   @Override
   @Test
+  public void testRowUpdated()
+  {
+    enter();
+    try
+    {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_UPDATABLE);
+    	  getResultSet().rowUpdated(); 
+    	}
+    catch(SQLFeatureNotSupportedException sfnse) { System.out.println(EU.getExceptionMessage(sfnse)); }
+    catch(SQLException se) { fail(EU.getExceptionMessage(se)); }
+  } /* testRowUpdated */
+  
+  
+  @Override
+  @Test
   public void testInsertRow() throws SQLException
   {
     try 
     {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_UPDATABLE);
       getResultSet().moveToInsertRow();
       TestColumnDefinition tcd = findColumnDefinition(
         _listCdSimple,"CINTEGER");
@@ -2112,7 +2375,7 @@ public class Db2ResultSetTester
   {
     try 
     {
-      openResultSet(getResultSet().getStatement().getConnection(),_sSqlQuerySimple);
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_UPDATABLE);
       getResultSet().moveToInsertRow();
       TestColumnDefinition tcd = findColumnDefinition(_listCdSimple,"CCHAR_5");
       getResultSet().updateString(tcd.getName(),(String)tcd.getValue());
@@ -2173,7 +2436,7 @@ public class Db2ResultSetTester
       getResultSet().insertRow();
       getResultSet().moveToCurrentRow();
       
-      openResultSet(getResultSet().getStatement().getConnection(),_sSqlQuerySimple);
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
       tcd = findColumnDefinition(
         _listCdSimple,"CINTEGER");
       while ((getResultSet().getInt(tcd.getName()) != ((Integer)tcd.getValue()).intValue()) && 
@@ -2317,13 +2580,14 @@ public class Db2ResultSetTester
     try 
     {
       // needed for foreign key constraint ...
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_UPDATABLE);
       getResultSet().moveToInsertRow();
       TestColumnDefinition tcd = findColumnDefinition(
         _listCdSimple,"CINTEGER");
       getResultSet().updateInt(tcd.getName(),((Integer)tcd.getValue()).intValue());
       getResultSet().insertRow();
 
-      openResultSet(getResultSet().getStatement().getConnection(),_sSqlQueryComplex);
+      openResultSet(_sSqlQueryComplex,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_UPDATABLE);
       getResultSet().moveToInsertRow();
       tcd = findColumnDefinition(_listCdComplex,"CID");
       getResultSet().updateInt(tcd.getName(),((Integer)tcd.getValue()).intValue());
@@ -2335,7 +2599,7 @@ public class Db2ResultSetTester
       getResultSet().insertRow();
       getResultSet().moveToCurrentRow();
       
-      openResultSet(getResultSet().getStatement().getConnection(),_sSqlQueryComplex);
+      openResultSet(_sSqlQueryComplex,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
       tcd = findColumnDefinition(_listCdComplex,"CID");
       while ((getResultSet().getInt(tcd.getName()) != ((Integer)tcd.getValue()).intValue()) && 
         getResultSet().next()) {}
@@ -2361,5 +2625,212 @@ public class Db2ResultSetTester
     catch(SQLException se) { fail(EU.getExceptionMessage(se)); }
     catch(ParseException pe) { fail(EU.getExceptionMessage(pe)); }
   } /* testInsertRowComplex */
+
+  @Override
+  @Test
+  public void testClose()
+  {
+    enter();
+    try 
+    {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
+      Statement stmt = getResultSet().getStatement();
+      getResultSet().close();
+      if (!stmt.isClosed())
+        stmt.close();
+      if (!_conn.isClosed())
+      {
+        _conn.rollback();
+        _conn.close();
+      }
+    }
+    catch(SQLFeatureNotSupportedException sfnse) { printExceptionMessage(sfnse); }
+    catch(SQLException se) { fail(EU.getExceptionMessage(se)); }
+  } /* testClose */
+  
+  @Override
+  @Test
+  public void testIsClosed()
+  {
+    enter();
+    try
+    { 
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
+    	  getResultSet().isClosed(); 
+    	}
+    catch(SQLFeatureNotSupportedException sfnse) { printExceptionMessage(sfnse); }
+    catch(SQLException se) { fail(EU.getExceptionMessage(se)); }
+  } /* testIsClosed */
+  
+  
+  @Override
+  @Test
+  public void testFindColumn()
+  {
+    enter();
+    try 
+    {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
+    	  super.testFindColumn();
+    	}
+    catch(SQLFeatureNotSupportedException sfnse) { printExceptionMessage(sfnse); }
+    catch(SQLException se) { fail(EU.getExceptionMessage(se)); }
+  } /* testFindColumn */
+
+  @Override
+  @Test
+  public void testGetStatement()
+  {
+    enter();
+    try 
+    {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
+    	  super.testGetStatement();
+    	}
+    catch(SQLFeatureNotSupportedException sfnse) { printExceptionMessage(sfnse); }
+    catch(SQLException se) { fail(EU.getExceptionMessage(se)); }
+  } /* testGetStatement */
+
+  @Override
+  @Test
+  public void testGetWarnings()
+  {
+    enter();
+    try 
+    { 
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
+    	  super.testGetWarnings();
+    	}
+    catch(SQLFeatureNotSupportedException sfnse) { printExceptionMessage(sfnse); }
+    catch(SQLException se) { fail(EU.getExceptionMessage(se)); }
+  } /* testGetWarnings */
+  
+  @Override
+  @Test
+  public void testClearWarnings()
+  {
+    enter();
+    try 
+    { 
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
+      super.testClearWarnings();
+    	}
+    catch(SQLFeatureNotSupportedException sfnse) { printExceptionMessage(sfnse); }
+    catch(SQLException se) { fail(EU.getExceptionMessage(se)); }
+  } /* testClearWarnings */
+  
+  @Override
+  @Test
+  public void testGetCursorName()
+  {
+    enter();
+    try 
+    { 
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
+      super.testGetCursorName(); 
+    	}
+    catch(SQLFeatureNotSupportedException sfnse) { printExceptionMessage(sfnse); }
+    catch(SQLException se) { fail(EU.getExceptionMessage(se)); }
+  } /* testGetCursorName */
+  
+  @Override
+  @Test
+  public void testUpdateNull()
+  {
+    enter();
+    try 
+    { 
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_UPDATABLE);
+    	  super.testUpdateNull(); 
+    	}
+    catch(SQLFeatureNotSupportedException sfnse) { printExceptionMessage(sfnse); }
+    catch(SQLException se) { fail(EU.getExceptionMessage(se)); }
+  } /* testUpdateNull */
+  
+  @Override
+  @Test
+  public void testGetHoldability()
+  {
+    enter();
+    try
+    {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
+    	  super.testGetHoldability();
+    	}
+    catch(SQLFeatureNotSupportedException sfnse) { printExceptionMessage(sfnse); }
+    catch(SQLException se) { fail(EU.getExceptionMessage(se)); }
+  } /* testGetHoldability */
+  
+  @Override
+  @Test
+  public void testGetType()
+  {
+    enter();
+    try
+    {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
+      assertEquals("Invalid result set type!",ResultSet.TYPE_FORWARD_ONLY,	getResultSet().getType());
+    	}
+    catch(SQLFeatureNotSupportedException sfnse) { printExceptionMessage(sfnse); }
+    catch(SQLException se) { fail(EU.getExceptionMessage(se)); }
+  } /* testGetType */
+  
+  @Override
+  @Test
+  public void testGetConcurrency()
+  {
+    enter();
+    try 
+    {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
+      assertEquals("Invalid result set concurrency!",ResultSet.CONCUR_READ_ONLY,getResultSet().getConcurrency());
+    	}
+    catch(SQLFeatureNotSupportedException sfnse) { printExceptionMessage(sfnse); }
+    catch(SQLException se) { fail(EU.getExceptionMessage(se)); }
+  } /* testGetConcurrency */
+  
+  @Override
+  @Test
+  public void testWasNull()
+  {
+    enter();
+    try 
+    {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
+      getResultSet().getObject(1);
+      getResultSet().wasNull();
+    }
+    catch(SQLFeatureNotSupportedException sfnse) { printExceptionMessage(sfnse); }
+    catch(SQLException se) { fail(EU.getExceptionMessage(se)); }
+  } /* testWasNull */
+
+  @Override
+  @Test
+  public void testGetMetaData()
+  {
+    enter();
+    try 
+    {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
+      getResultSet().getMetaData(); 
+    }
+    catch(SQLFeatureNotSupportedException sfnse) { printExceptionMessage(sfnse); }
+    catch(SQLException se) { fail(EU.getExceptionMessage(se)); }
+  } /* testGetMetaData */
+  
+  @Override
+  @Test
+  public void testGetRow()
+  {
+    enter();
+    try 
+    {
+      openResultSet(_sSqlQuerySimple,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
+      getResultSet().getRow(); 
+    	}
+    catch(SQLFeatureNotSupportedException sfnse) { printExceptionMessage(sfnse); }
+    catch(SQLException se) { fail(EU.getExceptionMessage(se)); }
+  } /* testGetRow */
+  
   
 } /* Db2ResultSetTester */

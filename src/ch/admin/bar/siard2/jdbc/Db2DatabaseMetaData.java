@@ -16,6 +16,7 @@ import java.sql.Date;
 import java.util.*;
 
 import ch.admin.bar.siard2.db2.datatype.Db2PredefinedType;
+import ch.enterag.sqlparser.SqlLiterals;
 import ch.enterag.utils.jdbc.*;
 
 /*====================================================================*/
@@ -141,6 +142,83 @@ public class Db2DatabaseMetaData
       super.getAttributes(catalog, schemaPattern, typeNamePattern, attributeNamePattern), 
       5,6,7,7);
   } /* getAttributes */
+
+  /*------------------------------------------------------------------*/
+  /** {@inheritDoc}
+   */
+  @Override
+  public ResultSet getTables(String catalog, String schemaPattern,
+    String tableNamePattern, String[] types) throws SQLException
+  {
+    Set<String> setDb2Types = new HashSet<String>(Arrays.asList("T", "V", "A"));
+    boolean bSystem = true;
+    if (types != null)
+    {
+      Set <String> setTypes = new HashSet<String>(Arrays.asList(types));
+      if (!setTypes.contains("ALIAS"))
+        setDb2Types.remove("A");
+      if (!(setTypes.contains("TABLE") || setTypes.contains("SYSTEM_TABLE")))
+        setDb2Types.remove("T");
+      if (!(setTypes.contains("TABLE") && setTypes.contains("SYSTEM_TABLE")))
+        bSystem = false;
+      if (!setTypes.contains("VIEW"))
+        setDb2Types.remove("V");
+    }
+    StringBuilder sbDb2Types = new StringBuilder();
+    for (Iterator<String> iterDb2Type = setDb2Types.iterator(); iterDb2Type.hasNext(); )
+    {
+      String sDb2Type = iterDb2Type.next();
+      if (sbDb2Types.length() > 0)
+        sbDb2Types.append(", ");
+      sbDb2Types.append("'"+sDb2Type+"'");
+    }
+    StringBuilder sbCondition = new StringBuilder("T.TABNAME LIKE ");
+    sbCondition.append(SqlLiterals.formatStringLiteral(tableNamePattern));
+    sbCondition.append(" ESCAPE ");
+    sbCondition.append(SqlLiterals.formatStringLiteral(getSearchStringEscape()));
+    sbCondition.append("\r\n");
+    if (schemaPattern != null)
+    {
+      sbCondition.append("AND T.TABSCHEMA LIKE ");
+      sbCondition.append(SqlLiterals.formatStringLiteral(schemaPattern));
+      sbCondition.append(" ESCAPE ");
+      sbCondition.append(SqlLiterals.formatStringLiteral(getSearchStringEscape()));
+      sbCondition.append("\r\n");
+    }
+    sbCondition.append("AND T.TYPE IN (");
+    sbCondition.append(sbDb2Types.toString());
+    sbCondition.append(")\r\n");
+    if (!bSystem)
+      sbCondition.append("AND NOT T.TABSCHEMA LIKE 'SYS%'\r\n");
+    StringBuilder sbSql = new StringBuilder("SELECT\r\n");
+    sbSql.append("  NULL AS TABLE_CAT,\r\n");
+    sbSql.append("  T.TABSCHEMA AS TABLE_SCHEM,\r\n");
+    sbSql.append("  T.TABNAME AS TABLE_NAME,\r\n");
+    sbSql.append("  CASE T.TYPE\r\n");
+    sbSql.append("    WHEN 'T' THEN 'TABLE'\r\n");
+    sbSql.append("    WHEN 'V' THEN 'VIEW'\r\n");
+    sbSql.append("    WHEN 'A' THEN 'ALIAS'\r\n");
+    sbSql.append("    ELSE NULL\r\n");
+    sbSql.append("  END AS TABLE_TYPE,\r\n");
+    sbSql.append("  T.REMARKS AS REMARKS,\r\n");
+    sbSql.append("  NULL AS TYPE_CAT,\r\n");
+    sbSql.append("  NULL AS TYPE_SCHEM,\r\n");
+    sbSql.append("  NULL AS TYPE_NAME,\r\n");
+    sbSql.append("  NULL AS SELF_REFERENCING_COL_NAME,\r\n");
+    sbSql.append("  V.TEXT AS "+_sQUERY_TEXT+"\r\n");
+    sbSql.append("FROM SYSCAT.TABLES T\r\n");
+    sbSql.append("     LEFT JOIN SYSCAT.VIEWS V\r\n");
+    sbSql.append("       ON (T.TABSCHEMA = V.VIEWSCHEMA AND T.TABNAME = V.VIEWNAME)\r\n");
+    sbSql.append("WHERE ");
+    sbSql.append(sbCondition.toString());
+    sbSql.append("ORDER BY TABLE_TYPE, TABLE_CAT, TABLE_SCHEM, TABLE_NAME");
+    ResultSet rsTables = null;
+    Connection conn = getConnection();
+    PreparedStatement pstmt = conn.unwrap(Connection.class).prepareStatement(sbSql.toString(),ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
+    rsTables = pstmt.executeQuery();
+    rsTables = new Db2ResultSet(rsTables);
+    return rsTables;
+  } /* getTables */
 
   /*------------------------------------------------------------------*/
   /** {@inheritDoc}

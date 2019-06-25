@@ -179,7 +179,7 @@ public class Db2DatabaseMetaData
     sbCondition.append("\r\n");
     if (schemaPattern != null)
     {
-      sbCondition.append("AND T.TABSCHEMA LIKE ");
+      sbCondition.append("AND TRIM(TRAILING FROM T.TABSCHEMA) LIKE ");
       sbCondition.append(SqlLiterals.formatStringLiteral(schemaPattern));
       sbCondition.append(" ESCAPE ");
       sbCondition.append(SqlLiterals.formatStringLiteral(getSearchStringEscape()));

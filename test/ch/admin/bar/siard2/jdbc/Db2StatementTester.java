@@ -90,6 +90,27 @@ public class Db2StatementTester extends BaseStatementTester
     }
     catch(SQLException se) { fail(se.getClass().getName()+": "+se.getMessage()); }
   } /* setUp */
+  
+  private void changeUser(String sUser, String sPassword)
+  {
+    try
+    {
+      Connection conn = getStatement().getConnection();
+      conn.commit();
+      getStatement().close();
+      conn.close();
+      Db2DataSource dsDb2 = new Db2DataSource();
+      dsDb2.setUrl(_sDB_URL);
+      dsDb2.setUser(sUser);
+      dsDb2.setPassword(sPassword);
+      Db2Connection connDb2 = (Db2Connection)dsDb2.getConnection();
+      connDb2.setAutoCommit(false);
+      connDb2.setHoldability(ResultSet.HOLD_CURSORS_OVER_COMMIT);
+      _stmtDb2 = (Db2Statement)connDb2.createStatement(ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_UPDATABLE,ResultSet.HOLD_CURSORS_OVER_COMMIT);
+      setStatement(_stmtDb2);
+    }
+    catch(SQLException se) { fail(se.getClass().getName()+": "+se.getMessage()); }
+  }
 
   @Test
   public void testClass()
@@ -240,9 +261,48 @@ public class Db2StatementTester extends BaseStatementTester
   public void testExecuteQuery()
   {
     enter();
-    try { _stmtDb2.executeQuery("SELECT LENGTH(TABLE_NAME) FROM SYSIBM.TABLES"); }
+    changeUser(_sDBA_USER, _sDBA_PASSWORD);
+    try 
+    { 
+      if (existsTable("TESTDB2","TCOMPLEX"))
+      {
+        String sSql = "DROP TABLE TESTDB2.TCOMPLEX CASCADE";
+        _stmtDb2.executeUpdate(sSql);
+        System.out.println("Dropped TESTDB2.TCOMPLEX");
+      }
+      String sSql = "CREATE TABLE TESTDB2.TCOMPLEX(" +
+        "  CID INTEGER NOT NULL,\r\n" +
+        "  CDISTINCT TESTDB2.TDISTINCT,\r\n" +
+        "  CUDTS TESTDB2.TUDTS,\r\n" +
+        "  \"CARRAY.CARRAY[1]\" VARCHAR(256),\r\n" +
+        "  \"CARRAY.CARRAY[2]\" VARCHAR(256),\r\n" +
+        "  \"CARRAY.CARRAY[3]\" VARCHAR(256),\r\n" +
+        "  \"CARRAY.CARRAY[4]\" VARCHAR(256),\r\n" +
+        "  CUDTC TESTDB2.TUDTC,\r\n" +
+        "  PRIMARY KEY(CID))";
+      _stmtDb2.executeUpdate(sSql);
+      System.out.println("Created TESTDB2.TCOMPLEX");
+      sSql = "SELECT\r\n"+
+        "  CID,\r\n"+
+        "  CDISTINCT,\r\n"+
+        "  CUDTS,\r\n"+
+        "  \"CARRAY.CARRAY[1]\",\r\n"+
+        "  \"CARRAY.CARRAY[2]\",\r\n"+
+        "  \"CARRAY.CARRAY[3]\",\r\n"+
+        "  \"CARRAY.CARRAY[4]\",\r\n"+
+        "  CUDTC\r\n"+
+        " FROM TESTDB2.TCOMPLEX";
+      ResultSet rs = _stmtDb2.executeQuery(sSql);
+      if (!rs.next())
+        System.out.println("Empty Table");
+      rs.close();
+    }
     catch(SQLTimeoutException ste) { fail(EU.getExceptionMessage(ste)); }
     catch(SQLException se) { fail(EU.getExceptionMessage(se)); }
+    finally 
+    {
+      changeUser(_sDB_USER, _sDB_PASSWORD); 
+    }    
   } /* testExecuteQuery */
   
   @Test

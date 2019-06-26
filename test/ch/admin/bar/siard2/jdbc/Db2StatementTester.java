@@ -97,6 +97,29 @@ public class Db2StatementTester extends BaseStatementTester
     assertEquals("Wrong statement class!", Db2Statement.class, _stmtDb2.getClass());
   } /* testClass */
 
+  /*------------------------------------------------------------------*/
+  /** check, whether table exists in the database.
+   * @param sMangledSchema schema name.
+   * @param sMangledTable table name.
+   * @return true, if table exists.
+   * @throws SQLException if a database error occurred.
+   */
+  private boolean existsTable(String sMangledSchema, String sMangledTable)
+    throws SQLException
+  {
+    boolean bExists = false;
+    DatabaseMetaData dmd = _stmtDb2.getConnection().getMetaData();
+    ResultSet rs = dmd.getTables(null, 
+      ((BaseDatabaseMetaData)dmd).toPattern(sMangledSchema), 
+      ((BaseDatabaseMetaData)dmd).toPattern(sMangledTable), 
+      new String[]{"TABLE"});
+    if (rs.next())
+      bExists = true;
+    rs.close();
+    return bExists;
+  } /* existsTable */
+  
+  
   @Test
   @Override
   public void testExecuteUpdate()
@@ -105,8 +128,12 @@ public class Db2StatementTester extends BaseStatementTester
     try 
     {
       _stmtDb2.getConnection().setAutoCommit(true);
-      try { _stmtDb2.executeUpdate(_sSQL_CLEAN); }
-      catch(SQLException se) { }
+      if (existsTable(null,"TESTTABLESIMPLE"))
+      {
+        System.out.println("Executing "+_sSQL_CLEAN);
+        _stmtDb2.executeUpdate(_sSQL_CLEAN);
+      }
+      System.out.println("Executing "+_sSQL_DDL);
       _stmtDb2.executeUpdate(_sSQL_DDL); 
     }
     catch(SQLTimeoutException ste) { fail(EU.getExceptionMessage(ste)); }

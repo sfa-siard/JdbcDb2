@@ -118,9 +118,17 @@ public class TestSqlDatabase
     _sTestUser = sTestUser;
     drop();
     create();
-    String sSql = "GRANT ALL ON "+getQualifiedSimpleTable().format()+" TO "+_sTestUser;
-    Statement stmt = conn.createStatement().unwrap(Statement.class);
+    String sSql = "GRANT CREATEIN ON SCHEMA "+SqlLiterals.formatId(_sTestUser)+" TO "+SqlLiterals.formatId(_sTestUser);
+    Statement stmt = _conn.createStatement().unwrap(Statement.class);;
     int iResult = stmt.executeUpdate(sSql);
+    if (iResult != 0)
+      throw new SQLException("GRANT CREATEIN on default schema failed!");
+    sSql = "GRANT DROPIN ON SCHEMA "+SqlLiterals.formatId(_sTestUser)+" TO "+SqlLiterals.formatId(_sTestUser);
+    iResult = stmt.executeUpdate(sSql);
+    if (iResult != 0)
+      throw new SQLException("Grant DROPIN on default schema failed!");
+    sSql = "GRANT ALL ON "+getQualifiedSimpleTable().format()+" TO "+_sTestUser;
+    iResult = stmt.executeUpdate(sSql);
     if (iResult != 0)
       throw new SQLException("Grant on simple table failed!");
     sSql = "GRANT ALL ON "+getQualifiedComplexTable().format()+" TO "+_sTestUser;
@@ -131,6 +139,7 @@ public class TestSqlDatabase
     iResult = stmt.executeUpdate(sSql);
     if (iResult != 0)
       throw new SQLException("Grant on simple view failed!");
+    
     stmt.close();
     _conn.commit();
   } /* constructor TestSqlDatabase */

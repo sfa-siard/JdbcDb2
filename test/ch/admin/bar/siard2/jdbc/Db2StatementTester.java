@@ -55,6 +55,17 @@ public class Db2StatementTester extends BaseStatementTester
   
   private Db2Statement _stmtDb2 = null;
 
+  protected void clean()
+      throws SQLException
+    {
+      try 
+      { 
+        getStatement().executeUpdate(_sSQL_CLEAN);
+        getStatement().getConnection().commit();
+      }
+      catch(SQLException se) { getStatement().getConnection().rollback(); }
+    } /* clean */
+    
   @BeforeClass
   public static void setUpClass()
   {
@@ -159,6 +170,11 @@ public class Db2StatementTester extends BaseStatementTester
     }
     catch(SQLTimeoutException ste) { fail(EU.getExceptionMessage(ste)); }
     catch(SQLException se) { fail(EU.getExceptionMessage(se)); }
+    finally
+    {
+      try { clean(); }
+      catch(SQLException se) { fail(EU.getExceptionMessage(se)); }
+    }
   } /* testExecuteUpdate */
   
   @Test

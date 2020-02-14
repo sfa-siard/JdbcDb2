@@ -3,9 +3,9 @@ Created-By: Hartwig Thomas, Enter AG, Rüti ZH, Switzerland
 Specification-Title: JDBC 
 Specification-Version: 4
 Implementation-Title: IBM DB/2 JDBC Wrapper
-Implementation-Version: 2.1.55
+Implementation-Version: 2.1.56
 Implementation-Vendor: Enter AG, Rüti ZH, Switzerland
-Built-Date: 02. Dec 2019
+Built-Date: 10. Jan 2020
 Class-Path: db2jcc4.jar
   jdbcbase.jar
   sqlparser.jar

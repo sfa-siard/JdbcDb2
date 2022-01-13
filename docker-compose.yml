@@ -1,0 +1,15 @@
+version: '3.9'
+
+services:
+  mysql:
+    build:
+      context: ./docker
+      dockerfile: Dockerfile
+    environment:
+      LICENSE: accept
+      DB2INST1_PASSWORD: db2adminpwd
+      DBNAME: testdb
+    ports:
+      - 50000:50000
+
+

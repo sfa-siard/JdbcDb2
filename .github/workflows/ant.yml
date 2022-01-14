@@ -28,6 +28,15 @@ jobs:
         with:
           # https://docs.docker.com/compose/reference/overview/
           cli-args: "up -d"
+      # TODO: find a better way to wait until the database is ready
+      - name: Sleep for 400 seconds
+        run: sleep 400s
+        shell: bash
+      - name: check logs of docker-compose
+        uses: sudo-bot/action-docker-compose@latest
+        with:
+          # https://docs.docker.com/compose/reference/overview/
+          cli-args: "logs"
       - name: Build with Ant
         run: ant -noinput -buildfile build.xml build
       - name: Test with Ant

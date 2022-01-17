@@ -1,4 +1,4 @@
-FROM ibmcom/db2
+FROM ibmcom/db2:11.5.7.0
 
 RUN mkdir /var/custom
 COPY ./custom/01-initialize-db.sh /var/custom

@@ -45,8 +45,11 @@ public class TestSqlDatabase
   {
     List<TestColumnDefinition> listAdSimple = new ArrayList<TestColumnDefinition>();
     listAdSimple.add(new TestColumnDefinition("TABLEID","INTEGER",Integer.valueOf(1)));
-    listAdSimple.add(new TestColumnDefinition("TRANSCRIPTION","CLOB",TestUtils.getString(1000000)));
-    listAdSimple.add(new TestColumnDefinition("SOUND","BLOB",TestUtils.getBytes(1000000)));
+    // TODO: current db2 only accepts up to 255 characters length - even though defaults for CLOB and BLOB should be 1M
+    /*listAdSimple.add(new TestColumnDefinition("TRANSCRIPTION","CLOB",TestUtils.getString(1000000)));
+    listAdSimple.add(new TestColumnDefinition("SOUND","BLOB",TestUtils.getBytes(1000000)));*/
+    listAdSimple.add(new TestColumnDefinition("TRANSCRIPTION","CLOB",TestUtils.getString(255)));
+    listAdSimple.add(new TestColumnDefinition("SOUND","BLOB",TestUtils.getBytes(255)));
     return listAdSimple;
   }
   public static List<TestColumnDefinition> _listAdSimple = getListAdSimple();

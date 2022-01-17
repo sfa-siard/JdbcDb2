@@ -19,10 +19,7 @@ public class Db2ConnectionTester extends BaseConnectionTester
   private static final String _sDBA_PASSWORD = _cp.getDbaPassword();
 
   @BeforeClass
-  public static void setUpClass()
-  {
-    try 
-    { 
+  public static void setUpClass() throws SQLException {
       Db2DataSource dsDb2 = new Db2DataSource();
       dsDb2.setUrl(_sDB_URL);
       dsDb2.setUser(_sDBA_USER);
@@ -32,9 +29,7 @@ public class Db2ConnectionTester extends BaseConnectionTester
       new TestSqlDatabase(connDb2,_sDB_USER);
       new TestDb2Database(connDb2,_sDB_USER);
       connDb2.close();
-    }
-    catch(SQLException se) { fail(EU.getExceptionMessage(se)); }
-  } /* setUpClass */
+  }
   
   @Before
   public void setUp()

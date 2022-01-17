@@ -2,6 +2,7 @@ package ch.admin.bar.siard2.db2;
 
 import java.io.*;
 import java.math.*;
+import java.nio.charset.StandardCharsets;
 import java.sql.*;
 import java.sql.Date;
 import java.util.*;
@@ -276,7 +277,7 @@ public class TestDb2Database
     sbSql.append("\r\n) CCSID UNICODE");
     Statement stmt = _conn.createStatement();
     stmt.executeUpdate(sbSql.toString());
-    String sSql = "GRANT ALL ON "+getQualifiedSimpleTable().format()+" TO "+_sTestUser;
+    String sSql = "GRANT ALL ON "+getQualifiedSimpleTable().format()+" TO USER "+_sTestUser;
     stmt.executeUpdate(sSql);
     stmt.close();
     _conn.commit();
@@ -300,7 +301,7 @@ public class TestDb2Database
     sbSql.append("\r\n) CCSID UNICODE");
     Statement stmt = _conn.createStatement();
     stmt.executeUpdate(sbSql.toString());
-    String sSql = "GRANT ALL ON "+getQualifiedComplexTable().format()+" TO "+_sTestUser;
+    String sSql = "GRANT ALL ON "+getQualifiedComplexTable().format()+" TO USER "+_sTestUser;
     stmt.executeUpdate(sSql);
     stmt.close();
     _conn.commit();

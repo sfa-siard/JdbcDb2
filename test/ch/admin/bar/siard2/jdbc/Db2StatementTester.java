@@ -52,7 +52,7 @@ public class Db2StatementTester extends BaseStatementTester
   private static final String _sDB_PASSWORD = _cp.getPassword();
   private static final String _sDBA_USER = _cp.getDbaUser();
   private static final String _sDBA_PASSWORD = _cp.getDbaPassword();
-  
+
   private Db2Statement _stmtDb2 = null;
 
   protected void clean()
@@ -280,34 +280,34 @@ public class Db2StatementTester extends BaseStatementTester
     changeUser(_sDBA_USER, _sDBA_PASSWORD);
     try 
     { 
-      if (existsTable("TESTDB2","TCOMPLEX"))
+      if (existsTable("TESTDB2SCHEMA","TCOMPLEX"))
       {
-        String sSql = "DROP TABLE TESTDB2.TCOMPLEX CASCADE";
+        String sSql = "DROP TABLE TESTDB2SCHEMA.TCOMPLEX CASCADE";
         _stmtDb2.executeUpdate(sSql);
-        System.out.println("Dropped TESTDB2.TCOMPLEX");
+        System.out.println("Dropped TESTDB2SCHEMA.TCOMPLEX");
       }
-      String sSql = "CREATE TABLE TESTDB2.TCOMPLEX(" +
+      String sSql = "CREATE TABLE TESTDB2SCHEMA.TCOMPLEX(" +
         "  CID INTEGER NOT NULL,\r\n" +
-        "  CDISTINCT TESTDB2.TDISTINCT,\r\n" +
-        "  CUDTS TESTDB2.TUDTS,\r\n" +
+        "  CDISTINCT TESTDB2SCHEMA.TDB2DISTINCT,\r\n" +
+        //"  CUDTS TUDTS,\r\n" +
         "  \"CARRAY.CARRAY[1]\" VARCHAR(256),\r\n" +
         "  \"CARRAY.CARRAY[2]\" VARCHAR(256),\r\n" +
         "  \"CARRAY.CARRAY[3]\" VARCHAR(256),\r\n" +
         "  \"CARRAY.CARRAY[4]\" VARCHAR(256),\r\n" +
-        "  CUDTC TESTDB2.TUDTC,\r\n" +
+        //"  CUDTC TUDTC,\r\n" +
         "  PRIMARY KEY(CID))";
       _stmtDb2.executeUpdate(sSql);
-      System.out.println("Created TESTDB2.TCOMPLEX");
+      System.out.println("Created TESTDB2SCHEMA.TCOMPLEX");
       sSql = "SELECT\r\n"+
         "  CID,\r\n"+
         "  CDISTINCT,\r\n"+
-        "  CUDTS,\r\n"+
+        //"  CUDTS,\r\n"+
         "  \"CARRAY.CARRAY[1]\",\r\n"+
         "  \"CARRAY.CARRAY[2]\",\r\n"+
         "  \"CARRAY.CARRAY[3]\",\r\n"+
-        "  \"CARRAY.CARRAY[4]\",\r\n"+
-        "  CUDTC\r\n"+
-        " FROM TESTDB2.TCOMPLEX";
+        "  \"CARRAY.CARRAY[4]\"\r\n"+
+        //"  CUDTC\r\n"+
+        " FROM TESTDB2SCHEMA.TCOMPLEX";
       ResultSet rs = _stmtDb2.executeQuery(sSql);
       if (!rs.next())
         System.out.println("Empty Table");

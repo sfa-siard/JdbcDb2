@@ -86,8 +86,8 @@ public class Db2ResultSetTester
   {
     List<TestColumnDefinition> listAdSimple = new ArrayList<TestColumnDefinition>();
     listAdSimple.add(new TestColumnDefinition("TABLEID","INTEGER",Integer.valueOf(2)));
-    listAdSimple.add(new TestColumnDefinition("TRANSCRIPTION","CLOB",TestUtils.getString(567890)));
-    listAdSimple.add(new TestColumnDefinition("SOUND","BLOB",TestUtils.getBytes(987654)));
+    listAdSimple.add(new TestColumnDefinition("TRANSCRIPTION","CLOB",TestUtils.getString(100)));
+    listAdSimple.add(new TestColumnDefinition("SOUND","BLOB",TestUtils.getBytes(100)));
     return listAdSimple;
   }
   public static List<TestColumnDefinition> _listAdSimple = getListAdSimple();

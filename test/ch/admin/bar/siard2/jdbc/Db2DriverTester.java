@@ -82,7 +82,7 @@ public class Db2DriverTester
     int iMajorVersion = _driver.getMajorVersion();
     int iMinorVersion = _driver.getMinorVersion();
     String sVersion = String.valueOf(iMajorVersion)+"."+String.valueOf(iMinorVersion);
-    assertEquals("Wrong DB/2 version "+sVersion+" found!", "4.21", sVersion);
+    assertEquals("Wrong DB/2 version "+sVersion+" found!", "4.31", sVersion);
   } /* testVersion */
   
   @Test

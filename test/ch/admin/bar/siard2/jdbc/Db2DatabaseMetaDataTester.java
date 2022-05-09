@@ -116,7 +116,7 @@ public class Db2DatabaseMetaDataTester extends BaseDatabaseMetaDataTester
           case "DBCLOB": assertEquals("Invalid DBCLOB mapping!",iDataType,Types.NCLOB); break;
           case "CHAR () FOR BIT DATA": assertEquals("Invalid CHAR() FOR BIT DATA mapping!",iDataType,Types.BINARY); break;
           case "BINARY": assertEquals("Invalid BINARY mapping!",iDataType,Types.BINARY); break;
-          case "VARCHAR () FOR BIT DATA": assertEquals("Invalid VARCHAR FOR BIT DATA mapping!",iDataType,Types.VARBINARY); break;
+          case "VARBINARY": assertEquals("Invalid VARBINARY mapping!",iDataType,Types.VARBINARY); break;
           case "BLOB": assertEquals("Invalid BLOB mapping!",iDataType,Types.BLOB); break;
           case "SMALLINT": assertEquals("Invalid SMALLINT mapping!",iDataType,Types.SMALLINT); break;
           case "INTEGER": assertEquals("Invalid INTEGER mapping!",iDataType,Types.INTEGER); break;
@@ -191,7 +191,7 @@ public class Db2DatabaseMetaDataTester extends BaseDatabaseMetaDataTester
           case "DBCLOB": assertEquals("Invalid DBCLOB mapping!",iDataType,Types.NCLOB); break;
           case "CHAR () FOR BIT DATA": assertEquals("Invalid CHAR() FOR BIT DATA mapping!",iDataType,Types.BINARY); break;
           case "BINARY": assertEquals("Invalid BINARY mapping!",iDataType,Types.BINARY); break;
-          case "VARCHAR () FOR BIT DATA": assertEquals("Invalid VARCHAR FOR BIT DATA mapping!",iDataType,Types.VARBINARY); break;
+          case "VARBINARY": assertEquals("Invalid VARCHAR FOR BIT DATA mapping!",iDataType,Types.VARBINARY); break;
           case "BLOB": assertEquals("Invalid BLOB mapping!",iDataType,Types.BLOB); break;
           case "SMALLINT": assertEquals("Invalid SMALLINT mapping!",iDataType,Types.SMALLINT); break;
           case "INTEGER": assertEquals("Invalid INTEGER mapping!",iDataType,Types.INTEGER); break;

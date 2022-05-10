@@ -12,8 +12,11 @@ have been installed. Adjust `build.properties` to your systems need.
 Run a DB2 Database with:
 
 ```shell
-docker-compose up -d
+docker-compose up -d --build
 ```
+
+Make sure to remove the image from your system and rebuild it from scratch since the user/ password create in `01-initialize-db.sh` expires over time and must be reset. 
+
 
 Run all tests:
 

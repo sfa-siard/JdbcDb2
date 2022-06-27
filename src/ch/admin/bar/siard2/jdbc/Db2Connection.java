@@ -223,4 +223,9 @@ public class Db2Connection
     throw new SQLFeatureNotSupportedException("DB/2 supports no arrays as table columns!");
   } /* createArrayOf */
 
+  @Override
+  public Blob createDatalinkObject() throws SQLException {
+    return createBlob();
+}
+
 } /* class Db2Connection */

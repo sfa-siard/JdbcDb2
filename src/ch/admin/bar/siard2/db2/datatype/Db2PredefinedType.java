@@ -92,11 +92,10 @@ public class Db2PredefinedType
         case NVARCHAR:
         case BINARY:
         case VARBINARY:
+        case DATALINK:
           sType = sType + formatLength();
           break;
         case CLOB:
-          sType = sType + formatLobLength(1);
-          break;
         case BLOB:
           sType = sType + formatLobLength(1);
           break;

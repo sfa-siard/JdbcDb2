@@ -10,6 +10,8 @@ package ch.admin.bar.siard2.jdbc;
 
 import java.io.*;
 import java.math.*;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.charset.*;
 import java.sql.*;
 import java.sql.Date;
@@ -44,9 +46,6 @@ public class Db2ResultSet
   private boolean _bNull = false;
   
   /*------------------------------------------------------------------*/
-  /** constructor
-   * @param rsWrapped result set to be wrapped.
-   */
   public Db2ResultSet(ResultSet rs)
     throws SQLException
   {
@@ -239,35 +238,31 @@ public class Db2ResultSet
   /** load the record set into the object list.
    * @throws SQLException
    */
-  private void loadRecord()
-    throws SQLException
-  {
+  private void loadRecord() throws SQLException {
     freeRecord();
-    _listValues = new ArrayList<Object>();
+    _listValues = new ArrayList<>();
     int iColumn = 1;
-    for (int iValue = 1; iValue <= _rsmd.getColumnCount(); iValue++)
-    {
+    for (int iValue = 1; iValue <= _rsmd.getColumnCount(); iValue++) {
       int iDataType = getDataType(iValue);
-      if (iDataType != Types.STRUCT)
-      {
+      if (iDataType != Types.STRUCT) {
         Object o = null;
-        if (!isBeforeFirst())
-        {
-          try { o = super.getObject(iColumn); }
-          catch(SQLException se) {} // on insert row!
+        if (iDataType == Types.DATALINK) {
+          o = getURL(iColumn);
+        } else if (!isBeforeFirst()) {
+          try {
+            o = super.getObject(iColumn);
+          } catch (SQLException se) { } // on insert row!
         }
-        o = mapValue(iDataType,o);
+        o = mapValue(iDataType, o);
         _listValues.add(o);
         iColumn++;
-      }
-      else
-      {
-        Struct struct = getStruct(iColumn,_rsmd.getColumnTypeName(iValue)); 
-        iColumn = iColumn+getStructSize(struct);
+      } else {
+        Struct struct = getStruct(iColumn, _rsmd.getColumnTypeName(iValue));
+        iColumn = iColumn + getStructSize(struct);
         _listValues.add(struct);
       }
     }
-  } /* loadRecord */
+  }
 
   /*------------------------------------------------------------------*/
   /** update the record set from the Struct starting with iColumn.
@@ -2332,5 +2327,24 @@ public class Db2ResultSet
     }
     updateObject(columnIndex, o);
   } /* updateSQLXML */
+
+  @Override
+  public URL getURL(int columnIndex) throws SQLException {
+    try {
+      return new URL(super.getString(columnIndex));
+    } catch (MalformedURLException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  public URL updateURL(int columnIndex, URL url) throws SQLException {
+    super.updateObject(columnIndex, url.getPath());
+    return url;
+  }
+
+  public URL updateURL(String columnLabel, URL url) throws SQLException {
+    updateURL(this.findColumn(columnLabel), url);
+    return url;
+  }
   
 } /* class Db2ResultSet */

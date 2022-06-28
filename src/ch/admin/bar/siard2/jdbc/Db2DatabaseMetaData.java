@@ -52,7 +52,7 @@ public class Db2DatabaseMetaData
     mapDataType.put("TIME",Integer.valueOf(Types.TIME));
     mapDataType.put("TIMESTAMP",Integer.valueOf(Types.TIMESTAMP));
     mapDataType.put("XML",Integer.valueOf(Types.SQLXML));
-    mapDataType.put("DATALINK",Integer.valueOf(Types.DATALINK));
+    mapDataType.put("DATALINK",Integer.valueOf(Types.BLOB));
   }
 
   private static Map<String,Class<?>> mapClass = new HashMap<String,Class<?>>();
@@ -80,7 +80,7 @@ public class Db2DatabaseMetaData
     mapClass.put("TIME",Time.class);
     mapClass.put("TIMESTAMP",Timestamp.class);
     mapClass.put("XML",String.class);
-    mapClass.put("DATALINK", String.class);
+    mapClass.put("DATALINK", Blob.class);
   }
 
   /*------------------------------------------------------------------*/

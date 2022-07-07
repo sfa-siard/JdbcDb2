@@ -95,10 +95,11 @@ public class Db2PredefinedType
           sType = sType + formatLength();
           break;
         case CLOB:
-          sType = sType + formatLobLength(1);
-          break;
         case BLOB:
           sType = sType + formatLobLength(1);
+          break;
+        case DATALINK:
+          sType = "BLOB" + formatLobLength(1);
           break;
         case NCLOB:
           sType = "DBCLOB" + formatLobLength(2);

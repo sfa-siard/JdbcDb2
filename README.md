@@ -6,9 +6,6 @@ JdbcDb2 2.1 has been built and tested with JAVA JDK 1.8, 9, and 10.
 
 ## Getting started (for developers)
 
-For building the binaries, Java JDK (1.8 or higher) and Ant
-have been installed. Adjust `build.properties` to your systems need.
-
 Run a DB2 Database with:
 
 ```shell
@@ -21,13 +18,13 @@ Make sure to remove the image from your system and rebuild it from scratch since
 Run all tests:
 
 ```shell
-ant test
+./gradlew clean build
 ```
 
-Build and deploy:
+Create a release
 
 ```shell
-ant deploy
+./gradlew release
 ```
 
 

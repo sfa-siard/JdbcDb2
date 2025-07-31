@@ -9,6 +9,7 @@ import ch.enterag.utils.*;
 import ch.enterag.utils.base.*;
 import ch.enterag.utils.jdbc.*;
 
+@Ignore("was not part of the original TestSuite")
 public class Db2ComplexColumnsTester extends BaseDatabaseMetaDataTester
 {
   private static final ConnectionProperties _cp = new ConnectionProperties();

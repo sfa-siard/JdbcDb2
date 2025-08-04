@@ -22,6 +22,7 @@ public class Db2ConnectionTester extends BaseConnectionTester {
     @ClassRule
     public static Db2Container db2 = new Db2Container()
             .acceptLicense();
+
     private static final ConnectionProperties _cp = new ConnectionProperties();
     private static final String TESTUSER = "TESTUSER";
     private static final String TESTUSERPWD = "testuserpwd";

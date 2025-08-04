@@ -32,7 +32,6 @@ public class Db2DatabaseMetaDataTester extends BaseDatabaseMetaDataTester {
     public static Db2Container db2 = new Db2Container("ibmcom/db2:11.5.7.0").acceptLicense();
 
     private static final String TESTUSER = "TESTUSER";
-    private static final String TESTUSERPWD = "testuserpwd";
     private static Pattern _patTYPE = Pattern.compile("^(.*?)(\\(\\s*((\\d+)(\\s*,\\s*(\\d+))?)\\s*\\))?$");
 
     private Db2DatabaseMetaData _dmdDb2 = null;

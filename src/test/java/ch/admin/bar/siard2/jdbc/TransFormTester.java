@@ -9,6 +9,7 @@ import ch.enterag.utils.*;
 import ch.enterag.utils.base.*;
 import ch.enterag.utils.database.SqlTypes;
 
+@Ignore("was not part of the TestSuite")
 public class TransFormTester
 {
   private static final ConnectionProperties _cp = new ConnectionProperties();

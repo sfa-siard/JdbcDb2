@@ -7,6 +7,7 @@ import ch.admin.bar.siard2.jdbcx.*;
 import ch.enterag.utils.*;
 import ch.enterag.utils.base.*;
 
+@Ignore("was not part of the TestSuite")
 public class InsertRowTester
 {
   private static final ConnectionProperties _cp = new ConnectionProperties();

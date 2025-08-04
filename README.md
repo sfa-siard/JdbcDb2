@@ -2,43 +2,40 @@
 
 This package contains the JDBC Wrapper for DB/2 for SIARD 2.2.
 
-JdbcDb2 2.1 has been built and tested with JAVA JDK 1.8, 9, and 10.
-
 ## Getting started (for developers)
 
-For building the binaries, Java JDK (1.8 or higher) and Ant
-have been installed. Adjust `build.properties` to your systems need.
-
-Run a DB2 Database with:
+Run the build
 
 ```shell
-docker-compose up -d --build
+./gradlew clean build
 ```
 
-Make sure to remove the image from your system and rebuild it from scratch since the user/ password create in `01-initialize-db.sh` expires over time and must be reset. 
-
-
-Run all tests:
+Create a release
 
 ```shell
-ant test
+./gradlew release
 ```
-
-Build and deploy:
-
-```shell
-ant deploy
-```
-
-
-More information about the build process can be found in
-[./doc/manual/developer/build.html](./doc/manual/developer/build.html).
 
 You may use an IDE of your choice for development (tested with intellij idea and eclipse)
 
-## Documentation
+## Usage
 
-[./doc/manual/user/index.html](./doc/manual/user/index.html) contains the manual for using the binaries.
-[./doc/manual/developer/index.html](./doc/manual/user/index.html) is the manual for developers wishing
-build the binaries or work on the code.  
 
+Add the source dependency to your `settings.gradle.kts`:
+
+```kotlin
+sourceControl {
+    // ... other gitRepositories
+    gitRepository(URI.create("https://github.com/sfa-siard/JdbcDb2")) {
+        producesModule("ch.admin.bar:jdbc-db2")
+    }
+}
+```
+
+Add the dependency to `build.gradle.kts`:
+
+```kotlin
+dependencies {
+    implementation("ch.admin.bar:jdbc-db2:v2.2.2")
+}
+```

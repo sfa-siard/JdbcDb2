@@ -35,6 +35,7 @@ dependencies {
     implementation("ch.admin.bar:enterutilities:v2.2.4")
     implementation("ch.admin.bar:SqlParser:v2.2.3")
     implementation("ch.admin.bar:jdbc-base:${versions["jdbc-base"]}")
+    implementation("com.mysitex.sx.lib:db2jcc_license_cu:1.1")
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.1")
     testImplementation("org.junit.vintage:junit-vintage-engine")

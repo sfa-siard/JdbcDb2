@@ -13,7 +13,7 @@ version = scmVersion.version
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(8))
+        languageVersion.set(JavaLanguageVersion.of(17))
     }
 }
 
@@ -22,7 +22,7 @@ repositories {
 }
 
 val versions = mapOf(
-    "jdbc-base" to "v2.2.10",
+    "jdbc-base" to "v2.2.11",
 )
 
 dependencies {
@@ -32,9 +32,10 @@ dependencies {
     implementation("org.antlr:antlr4-runtime:4.5.2")
     implementation("com.googlecode.json-simple:json-simple:1.1.1")
     implementation("org.postgresql:postgresql:42.2.5")
-    implementation("ch.admin.bar:enterutilities:v2.2.4")
-    implementation("ch.admin.bar:SqlParser:v2.2.3")
+    implementation("ch.admin.bar:enterutilities:v2.2.5")
+    implementation("ch.admin.bar:SqlParser:v2.2.4")
     implementation("ch.admin.bar:jdbc-base:${versions["jdbc-base"]}")
+    implementation("com.mysitex.sx.lib:db2jcc_license_cu:1.1")
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.1")
     testImplementation("org.junit.vintage:junit-vintage-engine")

@@ -1,41 +1,31 @@
 # JdbcDb2 - SIARD 2.2 DB/2 JDBC Wrapper
-
 This package contains the JDBC Wrapper for DB/2 for SIARD 2.2.
 
 ## Getting started (for developers)
+For building the binaries, Java JDK 17 must be installed. A running DB/2 instance is needed before running the tests:
 
-Run the build
+```shell
+docker compose up -d
+```
 
+### Build the project
 ```shell
 ./gradlew clean build
 ```
 
-Create a release
+### Versioning, tags, and releases
+Versions and tags are managed with the [Axion Release Plugin](https://github.com/allegro/axion-release-plugin) for Gradle.
 
+Short overview:
 ```shell
-./gradlew release
+./gradlew currentVersion  # Shows the current version
+
+./gradlew release         # Creates a new release, adds a tag, and pushes it to remote
 ```
 
-You may use an IDE of your choice for development (tested with intellij idea and eclipse)
+## Documentation
+- [User Manual](https://github.com/sfa-siard/siard-suite/blob/main/docs/user-manual/en/user-manual.adoc)
+- [Software Architecture Document](https://github.com/sfa-siard/siard-suite/blob/main/docs/sad/sad.adoc)
 
-## Usage
-
-
-Add the source dependency to your `settings.gradle.kts`:
-
-```kotlin
-sourceControl {
-    // ... other gitRepositories
-    gitRepository(URI.create("https://github.com/sfa-siard/JdbcDb2")) {
-        producesModule("ch.admin.bar:jdbc-db2")
-    }
-}
-```
-
-Add the dependency to `build.gradle.kts`:
-
-```kotlin
-dependencies {
-    implementation("ch.admin.bar:jdbc-db2:v2.2.2")
-}
-```
+## Declaration
+Contributions to the codebase have been made with the support of Windsurf. Windsurf is AI-powered code completion tool, that is trained exclusively on natural language and source code data with [permissive licenses](https://windsurf.com/blog/copilot-trains-on-gpl-codeium-does-not). 

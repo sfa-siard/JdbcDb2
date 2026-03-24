@@ -1,3 +1,9 @@
+> **⚠️ ARCHIVED REPOSITORY**  
+> This repository is archived and no longer maintained. All development has moved to the new monorepo:  
+> **https://github.com/sfa-siard/siard-suite**  
+> 
+> Please create any issues or pull requests in the new monorepo, which now contains all submodules including this one.
+
 # JdbcDb2 - SIARD 2.2 DB/2 JDBC Wrapper
 This package contains the JDBC Wrapper for DB/2 for SIARD 2.2.
 
